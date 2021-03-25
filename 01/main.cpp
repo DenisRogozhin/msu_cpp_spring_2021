@@ -53,20 +53,12 @@ void alloc_before_makeallocator() {
 }
 
 
-void negative_makeallocator_test() {
-    Allocator a;
-    a.makeAllocator(-1);
-    char* ptr = a.alloc(25);
-    assert(ptr == nullptr);
-}
-
 int main() {
     ok_test();
     big_alloc_test();
     reset_test();
     negative_alloc_test();
     double_makeallocator_test();
-    negative_makeallocator_test();
     alloc_before_makeallocator();
     return 0;
 }
