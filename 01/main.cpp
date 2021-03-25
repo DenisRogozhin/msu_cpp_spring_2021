@@ -1,4 +1,4 @@
-#include "hw1.h"
+#include "allocator.h"
 
 
 void ok_test() {
@@ -6,10 +6,7 @@ void ok_test() {
     a.makeAllocator(30);
     char* ptr1 = a.alloc(20);
     char* ptr2 = a.alloc(10);
-    if ((ptr1 != nullptr) && (ptr2 != nullptr))
-        std::cout<<"OK_test passed"<<std::endl;
-    else
-        std::cout<<"OK_test failed"<<std::endl;
+    assert((ptr1 != nullptr) && (ptr2 != nullptr));
 }
 
 void big_alloc_test() {
@@ -17,10 +14,7 @@ void big_alloc_test() {
     a.makeAllocator(30);
     char* ptr1 = a.alloc(20);
     char* ptr2 = a.alloc(11);
-    if ((ptr1 != nullptr) && (ptr2 == nullptr))
-       std::cout<<"BIG_alloc_test passed"<<std::endl;
-    else
-        std::cout<<"BIG_alloc_test failed"<<std::endl;
+    assert((ptr1 != nullptr) && (ptr2 == nullptr));
 }
 
 
@@ -30,20 +24,14 @@ void reset_test() {
     char* ptr1 = a.alloc(20);
     a.reset();
     char* ptr2 = a.alloc(25);
-    if (ptr2 != nullptr) 
-       std::cout<<"reset_test passed"<<std::endl;
-    else
-        std::cout<<"reset_test failed"<<std::endl;
+    assert(ptr2 != nullptr) ;
 }
 
 void negative_alloc_test() {
     Allocator a;
     a.makeAllocator(30);
     char* ptr = a.alloc(-1);
-    if (ptr == nullptr) 
-       std::cout<<"negative_alloc_test passed"<<std::endl;
-    else
-        std::cout<<"negative_alloc_test failed"<<std::endl;
+    assert(ptr == nullptr) ;
 }
 
 
@@ -53,20 +41,23 @@ void double_makeallocator_test() {
     char* ptr1 = a.alloc(25);
     a.makeAllocator(40);
     char* ptr2 = a.alloc(35);
-    if (ptr2 != nullptr) 
-       std::cout<<"double_makeallocator_test passed"<<std::endl;
-    else
-        std::cout<<"double_makeallocator_test failed"<<std::endl;
+    assert(ptr2 != nullptr) ;
 }
+
+
+void alloc_before_makeallocator() {
+    Allocator a;
+    char* ptr = a.alloc(25);
+    a.makeAllocator(5);
+    assert(ptr == nullptr);
+}
+
 
 void negative_makeallocator_test() {
     Allocator a;
     a.makeAllocator(-1);
     char* ptr = a.alloc(25);
-    if (ptr == nullptr) 
-        std::cout<<"negative_makeallocator_test passed"<<std::endl;
-    else
-        std::cout<<"negative_makeallocator_test failed"<<std::endl; 
+    assert(ptr == nullptr);
 }
 
 int main() {
@@ -76,6 +67,7 @@ int main() {
     negative_alloc_test();
     double_makeallocator_test();
     negative_makeallocator_test();
+    alloc_before_makeallocator();
     return 0;
 }
 

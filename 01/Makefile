@@ -1,16 +1,17 @@
 CC = g++
 FLAGS = -std=c++17 -Wall -pedantic
 
-test: main.o 
-	./main
+all: allocator.o main.o
+	$(CC) $(FLAGS) allocator.o main.o -o main
 
+allocator.o: allocator.cpp allocator.h
+	$(CC) $(FLAGS) allocator.cpp -c
 
-hw1.o: hw1.cpp hw1.h
-	$(CC) $(FLAGS) hw1.cpp -c
-
-main.o: hw1.o main.cpp  
+main.o: allocator.o main.cpp  
 	$(CC) $(FLAGS) main.cpp -c
-	$(CC) $(FLAGS) hw1.o main.o -o main
+
+test: all 
+	./main
 
 
 clean:
