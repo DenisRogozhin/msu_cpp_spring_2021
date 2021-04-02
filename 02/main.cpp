@@ -90,11 +90,23 @@ void word_test() {
     assert(word_sum_len == 16);
 }
 
+void big_number_test() {
+    digit_count = 0;
+    word_count = 0;
+    TokenParser Pars;
+    Pars.SetDigitTokenCallback(digit_func);
+    Pars.SetWordTokenCallback(word_func);
+    Pars.parse("  18446744073709551615	 18446744073709551616 ");
+    assert((digit_count == 1) && (word_count == 1));
+}
+
+
 int main() {
     all_callbacks_test();
     no_start_and_fin_callback_test();
     no_tokens_callback_test();
     digit_test();
+    big_number_test();
     return 0;
 }
 
