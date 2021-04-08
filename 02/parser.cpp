@@ -9,20 +9,20 @@ void TokenParser::SetEndCallback(SimpleCallback func) {
     end_callback = func ;
 }
 
-void TokenParser::SetDigitTokenCallback(TokenCallback func) { 
-     digit_callback = func;
+void TokenParser::SetDigitTokenCallback(DigitCallback func) { 
+    digit_callback = func;
 }
      
 
-void TokenParser::SetWordTokenCallback(TokenCallback func) {
-     word_callback = func;
+void TokenParser::SetWordTokenCallback(WordCallback func) {
+    word_callback = func;
 }
 
 
 bool TokenParser::check_digit(const std::string & token) {
     int n = token.length();
-    unsigned long long  sum = 0;
-    unsigned long long  max_value = 18446744073709551615;
+    uint64_t  sum = 0;
+    uint64_t  max_value = 18446744073709551615;
     for (int i=0 ; i<n ; i++) 
         if ((token[i] > '9') || (token[i] < '0'))
             return false;
@@ -34,8 +34,18 @@ bool TokenParser::check_digit(const std::string & token) {
     return true;
 }
 
+uint64_t convert(const std::string & token){
+    uint64_t  sum = 0;
+    int n = token.length();
+    for (int i=0 ; i<n ; i++) 
+        sum = sum * 10 + token[i] - '0' ;
+    return sum;
+    
+}
+
 void TokenParser::parse(const std::string & text) {
-    start_callback();
+    if (start_callback != nullptr)
+        start_callback();
     int n = text.length();
     int start_pos = 0 , i = 0;
     while (start_pos < n) {
@@ -46,14 +56,20 @@ void TokenParser::parse(const std::string & text) {
             i++;
         if (i != start_pos) {
             std::string token = text.substr(start_pos, i - start_pos);
-            if (check_digit(token)) 
-                digit_callback(token);
+            if (check_digit(token)) {
+                if (digit_callback != nullptr) {
+		    uint64_t k = convert(token);
+                    digit_callback(k);
+                }
+           }
             else
-                word_callback(token);
+                if (word_callback != nullptr)
+                    word_callback(token);
         }
         start_pos = i;
     }
-    end_callback();
+    if (end_callback != nullptr)
+        end_callback();
     return ; 
 }
 
@@ -61,7 +77,7 @@ void TokenParser::parse(const std::string & text) {
 TokenParser::TokenParser()  {
     start_callback = [] {};
     end_callback = [] {};
-    digit_callback = [](const std::string&) {};
+    digit_callback = [](uint64_t &) {};
     word_callback = [](const std::string&) {};
 }
 

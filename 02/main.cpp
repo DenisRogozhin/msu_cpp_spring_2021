@@ -1,9 +1,7 @@
 #include "parser.h"
 
-static int digit_count = 0;
-static int digit_sum = 0;
-static int word_count = 0;
-static int word_sum_len = 0;
+static std::list <std::string> words ; 
+static std::list <uint64_t> digits; 
 
 void start() {
     std::cout<<"Start parsing"<<std::endl;
@@ -16,43 +14,54 @@ void finish() {
 }
 
 void word_func(const std::string & token) {
-    word_count++;
+    words.push_back(token);
     std::cout<<"catch word "<<token<<std::endl;
     return;
 }
 
-void digit_func(const std::string & token) {
-    digit_count++;
-    std::cout<<"catch digit "<<token<<std::endl;
+void digit_func(uint64_t & digit) {
+    digits.push_back(digit);
     return;
 }
 
 void all_callbacks_test() {
-    digit_count = 0;
-    word_count = 0;
+    words.clear();
+    digits.clear();
     TokenParser Pars;
     Pars.SetStartCallback(start);
     Pars.SetEndCallback(finish);
     Pars.SetDigitTokenCallback(digit_func);
     Pars.SetWordTokenCallback(word_func);
     Pars.parse("dsfd 123 12e /2 1w2 1337	fdgd");
-    assert((digit_count == 2) && (word_count == 5));
+    std::list <std::string> words_1;
+    words_1.push_back("dsfd");
+    words_1.push_back("12e");
+    words_1.push_back("/2");
+    words_1.push_back("1w2");
+    words_1.push_back("fdgd");
+    std::list <uint64_t> digits_1; 
+    digits_1.push_back(123);
+    digits_1.push_back(1337);
+    assert((digits_1 == digits) && (words_1 == words));
 }
 
 void no_start_and_fin_callback_test() {
-    digit_count = 0;
-    word_count = 0;
+    words.clear();
+    digits.clear();
     TokenParser Pars;
     Pars.SetDigitTokenCallback(digit_func);
     Pars.SetWordTokenCallback(word_func);
     Pars.parse("       144 \n 		  d1111  44	 ");
-    assert((digit_count == 2) && (word_count == 1));
+    std::list <std::string> words_1;
+    words_1.push_back("d1111");
+    std::list <uint64_t> digits_1; 
+    digits_1.push_back(144);
+    digits_1.push_back(44);
+    assert((digits_1 == digits) && (words_1 == words));
 }
 
 
 void no_tokens_callback_test() {
-    digit_count = 0;
-    word_count = 0;
     TokenParser Pars;
     Pars.SetStartCallback(start);
     Pars.SetEndCallback(finish);
@@ -62,51 +71,109 @@ void no_tokens_callback_test() {
     //assert((digit_count == 0) && (word_count == 4));
 }
 
-void sum(const std::string & token) {
-    digit_sum += std::stoi(token);
-}
 
-void digit_test() {
-    digit_sum = 0;
-    TokenParser Pars;
-    Pars.SetStartCallback(start);
-    Pars.SetEndCallback(finish);
-    Pars.SetDigitTokenCallback(sum);
-    Pars.parse("dsfd 123 12e /2 1w2 1337	4 fdgd");
-    assert(digit_sum == 1464);
-}
-
-void len(const std::string & token) {
-    word_sum_len += token.length();
-}
-
-void word_test() {
-    word_sum_len = 0;
-    TokenParser Pars;
-    Pars.SetStartCallback(start);
-    Pars.SetEndCallback(finish);
-    Pars.SetWordTokenCallback(len);
-    Pars.parse("dsfd 123 12e /2 1w2 1337	4 fdgd");
-    assert(word_sum_len == 16);
-}
 
 void big_number_test() {
-    digit_count = 0;
-    word_count = 0;
+    words.clear();
+    digits.clear();
     TokenParser Pars;
     Pars.SetDigitTokenCallback(digit_func);
     Pars.SetWordTokenCallback(word_func);
     Pars.parse("  18446744073709551615	 18446744073709551616 ");
-    assert((digit_count == 1) && (word_count == 1));
+    std::list <std::string> words_1;
+    words_1.push_back("18446744073709551616");
+    std::list <uint64_t> digits_1; 
+    digits_1.push_back(18446744073709551615);
+    assert((digits_1 == digits) && (words_1 == words));
 }
 
+void nullptr_callback_test() {
+    words.clear();
+    digits.clear();
+    TokenParser Pars;
+    Pars.SetStartCallback(nullptr);
+    Pars.SetEndCallback(finish);
+    Pars.SetDigitTokenCallback(digit_func);
+    Pars.SetWordTokenCallback(word_func);
+    Pars.parse("dsfd 123 12e /2 1w2 1337	4 fdgd");
+    std::list <std::string> words_1;
+    words_1.push_back("dsfd");
+    words_1.push_back("12e");
+    words_1.push_back("/2");
+    words_1.push_back("1w2");
+    words_1.push_back("fdgd");
+    std::list <uint64_t> digits_1; 
+    digits_1.push_back(123);
+    digits_1.push_back(1337);
+    digits_1.push_back(4);
+    assert((digits_1 == digits) && (words_1 == words));
+}
+
+
+void empty_string_test() {
+    words.clear();
+    digits.clear();
+    TokenParser Pars;
+    Pars.SetStartCallback(start);
+    Pars.SetEndCallback(finish);
+    Pars.SetWordTokenCallback(word_func);
+    Pars.parse("");
+    std::list <std::string> words_1;
+    std::list <uint64_t> digits_1; 
+    assert((digits_1 == digits) && (words_1 == words));
+}
+
+void space_string_test() {
+    words.clear();
+    digits.clear();
+    TokenParser Pars;
+    Pars.SetStartCallback(start);
+    Pars.SetEndCallback(finish);
+    Pars.SetWordTokenCallback(word_func);
+    Pars.parse("	  \n 	 	 \n\n\n\t	 ");
+    std::list <std::string> words_1;
+    std::list <uint64_t> digits_1; 
+    assert((digits_1 == digits) && (words_1 == words));
+}
+
+void one_digit_test() {
+    words.clear();
+    digits.clear();
+    TokenParser Pars;
+    Pars.SetStartCallback(start);
+    Pars.SetEndCallback(finish);
+    Pars.SetDigitTokenCallback(digit_func);
+    Pars.parse("1");
+    std::list <std::string> words_1;
+    std::list <uint64_t> digits_1; 
+    digits_1.push_back(1);
+    assert((digits_1 == digits) && (words_1 == words));
+}
+
+void one_word_test() {
+    words.clear();
+    digits.clear();
+    TokenParser Pars;
+    Pars.SetStartCallback(start);
+    Pars.SetEndCallback(finish);
+    Pars.SetWordTokenCallback(word_func);
+    Pars.parse("e");
+    std::list <std::string> words_1;
+    words_1.push_back("e");
+    std::list <uint64_t> digits_1; 
+    assert((digits_1 == digits) && (words_1 == words));
+}
 
 int main() {
     all_callbacks_test();
     no_start_and_fin_callback_test();
     no_tokens_callback_test();
-    digit_test();
     big_number_test();
+    nullptr_callback_test();
+    empty_string_test(); 
+    space_string_test();
+    one_digit_test();
+    one_word_test();
     return 0;
 }
 
