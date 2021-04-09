@@ -22,7 +22,7 @@ void TokenParser::SetWordTokenCallback(WordCallback func) {
 bool TokenParser::check_digit(const std::string & token) {
     int n = token.length();
     uint64_t  sum = 0;
-    uint64_t  max_value = 18446744073709551615;
+    uint64_t  max_value = 18446744073709551615ull;
     for (int i=0 ; i<n ; i++) 
         if ((token[i] > '9') || (token[i] < '0'))
             return false;

@@ -83,7 +83,7 @@ void big_number_test() {
     std::list <std::string> words_1;
     words_1.push_back("18446744073709551616");
     std::list <uint64_t> digits_1; 
-    digits_1.push_back(18446744073709551615);
+    digits_1.push_back(18446744073709551615ull);
     assert((digits_1 == digits) && (words_1 == words));
 }
 
