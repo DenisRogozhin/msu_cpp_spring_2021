@@ -104,14 +104,49 @@ void move_and_copy_test() {
     a3 = a1;
     assert(a3 == a1);
     BigInt a4(std::move(a1));
+    assert(a1 != a2);
     assert(a4 == a2);
     BigInt a5; 
     a5 = std::move(a2);
+    assert(a2 != a3);
     assert(a5 == a3);
+}
+
+void zero_test() {
+    BigInt a1("99324932492");
+    BigInt a2("-99324932492");
+    BigInt a3("0");
+    int zero = 0;	
+    assert(a1 + zero == a1);
+    assert(a1 + a3 == a1);
+    assert(a2 + zero == a2);
+    assert(a2 + a3 == a2);
+
+    assert(a1 - zero == a1);
+    assert(a1 - a3 == a1);
+    assert(a2 - zero == a2);
+    assert(a2 - a3 == a2);
+
+    assert(a1 * zero == a3);
+    assert(a1 * a3 == a3);
+    assert(a2 * zero == a3);
+    assert(a2 * a3 == a3);
+
+    assert(a1 > a3);
+    assert(a2 < a3);
+
+    assert(-a3 == a3);
+    assert(a1 != a3);
+
+    assert((a1 + a2) == a3);
+    assert((a1 - a1) == a3);
+    assert((a2 - a2) == a3);
+   
 
 }
 
 int main() {
+    zero_test();
     operator_plus_test();
     operator_minus_test();
     operator_mul_test();

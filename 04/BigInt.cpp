@@ -13,25 +13,33 @@ BigInt::BigInt(const std::string & s) {
     }
     while (s[k] == '0')
 	k++;
-    str = s.substr(k, s.length() - k);
-    int len = str.length();
-    if (len % 9 == 0)
-    	size = len / 9 ;
-    else
-	size = len / 9 + 1;
-    digit = new int32_t[size];
-    for (int i = 0 ; i < size ; i++) {
-        if (len < 9) {
-	    digit[i] = std::stoul(str);
+    if (k == s.length()) {
+        minus = false;
+ 	size = 1;
+        digit = new int32_t[size];
+	digit[0] = 0;	
+    }
+    else {
+        str = s.substr(k, s.length() - k);
+        int len = str.length();
+        if (len % 9 == 0)
+    	    size = len / 9 ;
+        else
+	    size = len / 9 + 1;
+        digit = new int32_t[size];
+        for (int i = 0 ; i < size ; i++) {
+            if (len < 9) {
+	        digit[i] = std::stoul(str);
+            }
+            else {
+                std::string sub_str = str.substr(len - 9, 9);
+                digit[i] = std::stoul(sub_str);
+                for (int j = 0 ; j < 9 ; j ++)
+		    str.pop_back();
+                 len -= 9;
+            }
         }
-        else {
-            std::string sub_str = str.substr(len - 9, 9);
-            digit[i] = std::stoul(sub_str);
-            for (int j = 0 ; j < 9 ; j ++)
-		str.pop_back();
-            len -= 9;
-        }
-    }		   
+    }
  }
 
 BigInt::BigInt() {
@@ -122,6 +130,8 @@ std::ostream & operator <<(std::ostream &out, const BigInt & other) {
 
 BigInt operator -(BigInt & other) {
     BigInt a(other);
+     if (other.digit[other.size - 1] == 0)
+	return a;	
     a.minus = not a.minus; 
     return a;
 }
@@ -176,6 +186,8 @@ BigInt BigInt::operator+(const BigInt & other) const {
 	    b.digit[a.size] = 1; 
             return b;
         }
+        if (a.digit[a.size - 1] == 0)
+            a.minus = false;
         return a;
     }
     //-x + -y = - (x + y)
@@ -185,6 +197,8 @@ BigInt BigInt::operator+(const BigInt & other) const {
     e.minus = false;
     a = d + e ;
     a.minus = true;
+    if (a.digit[a.size - 1] == 0)
+        a.minus = false;
     return a;
 }   
 
@@ -198,6 +212,8 @@ BigInt BigInt::operator-(const BigInt & other) const {
         e.minus = false;
 	a = d + e ;
         a.minus = true;
+        if (a.digit[a.size - 1] == 0)
+            a.minus = false;
         return a;
 	//- this - other = - (this + other)
     }
@@ -241,6 +257,8 @@ BigInt BigInt::operator-(const BigInt & other) const {
 		b.digit[i] = a.digit[i];
             return b;
         }
+        if (a.digit[a.size - 1] == 0)
+            a.minus = false;
         return a;
     }
     //-x - -y = y - x
@@ -254,6 +272,16 @@ BigInt BigInt::operator-(const BigInt & other) const {
 
 BigInt BigInt::operator*(const BigInt & other) const {
     BigInt a;
+    if (other.digit[other.size - 1] == 0) {
+	a = other;
+	a.minus = false;
+	return a;
+    }
+    if (digit[size - 1] == 0) {
+	a = *this;
+	a.minus = false;
+	return a;
+    }
     a.minus = !(minus == other.minus);
     a.size = other.size + size;
     a.digit = new int32_t[a.size];
@@ -297,7 +325,7 @@ BigInt BigInt::operator*(const BigInt & other) const {
     b.size = a.size - zero;
     b.digit = new int32_t[b.size];
     for (int l = 0 ; l < b.size; l++)
-	b.digit[l] = a.digit[l];
+	b.digit[l] = a.digit[l];       
     return b;
 } 
 
