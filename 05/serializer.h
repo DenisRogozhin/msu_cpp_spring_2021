@@ -7,11 +7,13 @@
 enum class Error {
     NoError,
     CorruptedArchive,
-    WrongType
+    WrongType,
+    NotEnoughData,
+    Bad_uint64
 };
 
 
-class Serializer {
+class Serializer { 
     public:
         explicit Serializer(std::ostream& out) : out_(out)  {  }
 
@@ -27,39 +29,44 @@ class Serializer {
 
     private:
 	static constexpr char separator = ' ';
+        bool need_separator = false;
 	std::ostream& out_;	
 
-	template <class T>
-	Error process(T arg) {
-	    if (std::is_same<T, bool>::value) {
-		if (arg)
-		    out_ << "true";
-		else
-		    out_ << "false"; 
-	    }
-	    else 
-		if (std::is_same<T, uint64_t>::value) 
-		    out_ << arg;
-	        else
-                    return Error::WrongType;
+	Error process(bool arg) {
+	    if (arg == true)
+                out_ << "true";
+	    else
+		out_ << "false";  
+            if (need_separator)
+		out_ << separator;
+            need_separator = false;
+	    return Error::NoError; 
+	}
+
+	Error process(uint64_t arg) {
+	    out_ << arg;
+            if (need_separator)
+		out_ << separator;
+            need_separator = false;
 	    return Error::NoError; 
 	}
 
 
+        template <class T>
+	Error process(T arg) {
+            return Error::WrongType;
+	}
+
+
+
 	template <class T, class ...ArgsT>
 	Error process(T arg, ArgsT ... args) {
-	    if (std::is_same<T, bool>::value) {
-		if (arg)
-		    out_ << "true" << separator;
-		else
-		    out_ << "false" << separator; 
-	    }
-	    else 
-		if (std::is_same<T, uint64_t>::value) 
-		    out_ << arg << separator;
-	    else 
-                return Error::WrongType; 
-	return process(args...);
+            need_separator = true;
+	    Error e1 = process(arg);
+            if (e1 == Error::NoError)
+		return process(args...);
+	    else
+		return e1;
 	}
 };
 
@@ -86,6 +93,9 @@ class Deserializer {
 	Error process(T * arg) {
 	    std::string data ;
 	    in_ >> data ;
+            if (data.length() == 0) {
+	    	return Error::NotEnoughData;
+	    }
 	    if (std::is_same<T, bool>::value) {
 		if (data == "true")
 		    *arg = true;
@@ -96,8 +106,14 @@ class Deserializer {
 			return Error::CorruptedArchive;
 	    }
 	    else 
-		if (std::is_same<T, uint64_t>::value) 
-		    *arg = std::stoull(data);
+		if (std::is_same<T, uint64_t>::value) {
+		    try {
+		        *arg = std::stoull(data);
+                    }
+		    catch(...) {
+			return Error::Bad_uint64;
+		    }
+                }
 	        else 
                     return Error::WrongType; 
 	    return Error::NoError; 
