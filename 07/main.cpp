@@ -4,7 +4,9 @@
 void create_vector_test() {
     Vector<int> v;
     v.push_back(1);
-    v.emplace_back(2, 3, 4);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     v.pop_back();
     v[1] = 5;
     assert(v.get_size() == 3);
@@ -16,7 +18,10 @@ void create_vector_test() {
 
 void reserve_test() {
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     v.reserve(500);
     assert(v.get_size() == 4);
     assert(v.get_capacity() == 500);
@@ -28,7 +33,10 @@ void reserve_test() {
 
 void copy_test() {
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     Vector e(v);
     assert(e.get_size() == 4);
     assert(v.get_size() == 4);
@@ -44,7 +52,10 @@ void copy_test() {
 
 void move_test() {
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     Vector e(std::move(v));
     assert(e.get_size() == 4);
     assert(v.get_size() == 0);
@@ -56,7 +67,10 @@ void move_test() {
 
 void operator_pr1_test() {
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     Vector<int> e;
     e = v;
     assert(e.get_size() == 4);
@@ -73,7 +87,10 @@ void operator_pr1_test() {
 
 void operator_pr2_test() {
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     Vector<int> e;
     e = std::move(v);
     assert(e.get_size() == 4);
@@ -93,7 +110,10 @@ void pop_from_empty_test() {
 
 void clear_test() {
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     v.clear();
     assert(v.get_size() == 0);
     bool t = false;
@@ -128,13 +148,19 @@ void out_of_range() {
 
 void resize_test() {
     Vector<int> e;
-    e.emplace_back(1, 2, 3, 4);
+    e.push_back(1);
+    e.push_back(2); 
+    e.push_back(3);
+    e.push_back(4);
     e.resize(2);
     assert(e.get_size() == 2);
     assert(e[0] == 1);
     assert(e[1] == 2);
     Vector<int> v;
-    v.emplace_back(1, 2, 3, 4);
+    v.push_back(1);
+    v.push_back(2); 
+    v.push_back(3);
+    v.push_back(4);
     v.resize(6);
     v[4] = 5;
     v[5] = 6;
@@ -148,9 +174,13 @@ void resize_test() {
 }
 
 void iterator_test() {
+    //тесты итераторов должны более явно проверять обход значений, тк если begin() возвращает end() для непустого вектора, тест это не заметит
     int a[4];
     Vector<int> e;
-    e.emplace_back(1, 2, 3, 4);
+    e.push_back(1);
+    e.push_back(2); 
+    e.push_back(3);
+    e.push_back(4);
     auto iter = e.begin();
     int i = 0;
     while (iter != e.end()) {
@@ -181,7 +211,10 @@ void iterator_test() {
 void reverse_iterator_test() {
     int a[4];
     Vector<int> e;
-    e.emplace_back(1, 2, 3, 4);
+    e.push_back(1);
+    e.push_back(2); 
+    e.push_back(3);
+    e.push_back(4);
     auto iter = e.rbegin();
     int i = 0;
     while (iter != e.rend()) {
@@ -209,8 +242,38 @@ void reverse_iterator_test() {
 
 }
 
+struct X {
+    int a;
+    std::string str;
+    bool t;
+   
+    X() {
+    }
+
+    X(int b, const std::string & s, bool t1) {
+	a = b;
+        str = s;
+        t = t1;
+    }
+
+    bool operator ==(X & other) {
+	return ((a == other.a) && (str == other.str) && (t == other.t));
+    }
+};
+
+void emplace_back_test() {
+    Vector <X> v;
+    X obj(5,"hello",true);
+    v.emplace_back(5,"hello",true); 
+    assert(v[0] == obj);
+    assert(v[0].a == 5);
+    assert(v[0].t); 
+    assert(v[0].str == "hello");
+}
+
 
 int main() {  
+    emplace_back_test();
     create_vector_test();
     reserve_test();
     copy_test();

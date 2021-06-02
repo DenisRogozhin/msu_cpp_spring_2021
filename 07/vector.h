@@ -137,15 +137,12 @@ class Vector {
 	    }
         }
 
-	void emplace_back(T&& arg) {
-    	     push_back(std::forward<T>(arg));
-        }
 
 
-        template < class... Args >
-	void emplace_back(T&& arg, Args&&... args) {
-    	    push_back(std::forward<T>(arg));
-    	    emplace_back(std::forward<Args>(args)...);
+        template< class... Args >
+	void emplace_back(Args&&... args ) {
+ 	    T obj(std::forward<Args>(args)...);
+    	    push_back(obj);
         }
 
 
